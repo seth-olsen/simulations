@@ -6,6 +6,7 @@
 #include <cmath> // for ICs
 #include <map>
 #include <string>
+#include "sim-structs.h"
 #include "ekg-header.h"
 
 using namespace std;

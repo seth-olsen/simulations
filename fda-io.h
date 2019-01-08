@@ -12,6 +12,7 @@
 #include <map> // for parameter input
 #include <cstdlib> // for atoi() and atof()
 #include "bbhutil.h" // for output to .sdf
+#include "sim-structs.h"
 #include "ekg-header.h"
 #include "fda-fns.h"
 #include "ekg-fns.h"

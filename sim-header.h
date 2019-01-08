@@ -86,8 +86,10 @@ typedef void (*WR_FN)(const VD&, const VD&, const VD&, const VD&, const VD&,
 		      MAPID&, int, int);
 typedef void (*WR_RES_FN)(const VD&, VD&, VD&, VD&, VD&, VD&, int, int);
 
-
-
+typedef struct bbhutil_params BBHP;
+typedef struct sim_fields FLDS;
+typedef struct sim_writers WRS;
+typedef struct sim_params PAR;
 
 
 
