@@ -1,5 +1,7 @@
 #ifndef SIMULATION_HEADER_H
 #define SIMULATION_HEADER_H
+
+#ifndef DRVAL
 // doubles in MAPID r
 #define NORM_FACTOR 32504
 #define INDRSQ 32500
@@ -55,6 +57,7 @@
 #define LP_LDAB 32549
 #define LP_LDB 32550
 #define MAX_ITN 32551
+#endif
 
 // libraries
 #include <iostream>
@@ -90,10 +93,6 @@ typedef struct bbhutil_params BBHP;
 typedef struct sim_fields FLDS;
 typedef struct sim_writers WRS;
 typedef struct sim_params PAR;
-
-
-
-
 
 
 #endif

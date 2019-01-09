@@ -8,8 +8,6 @@
 #include <string>
 #include "sim-header.h"
 
-using namespace std;
-
 struct bbhutil_params {
   MAPID *full_field;
   VD wr_field;
@@ -21,8 +19,7 @@ struct bbhutil_params {
   dbl *data;
   bool write_this;
 } ;
-
-typedef struct bbhutil_params BBHP;
+//typedef struct bbhutil_params BBHP;
 
 struct sim_fields {
   MAPID Al;
@@ -47,7 +44,7 @@ struct sim_fields {
   MAPID olderPi;
   //VD res_hyp(n_hyp*npts, 0);
 } ;
-typedef struct sim_fields FLDS;
+//typedef struct sim_fields FLDS;
 
 struct sim_writers {
   BBHP p_Al;
@@ -69,7 +66,7 @@ struct sim_writers {
   BBHP p_outnull;
   BBHP p_ricci;
 } ;
-typedef struct sim_writers WRS;
+//typedef struct sim_writers WRS;
 
 struct sim_params {
   str outfile;
@@ -164,7 +161,7 @@ struct sim_params {
   dbl csomm_old;
   
 } ;
-typedef struct sim_params PAR;
+//typedef struct sim_params PAR;
 
   
   

@@ -32,7 +32,7 @@ inline void prepare_write(const MAPID& fld, VD& wr_fld, PAR *p)
 
 inline void write_bbhp(BBHP *bp, PAR *p, dbl t)
 {
-  prepare_write(*(bp->full_field, bp->wr_field, p);
+  prepare_write(*(bp->full_field), bp->wr_field, p);
   gft_out_bbox(bp->file, t, bp->shape, bp->rank, bp->coords, bp->data);
 }
 
@@ -55,34 +55,65 @@ void bbhp_init(BBHP *bp, PAR *p, str fieldname, MAPID *p_field, VD& zeros)
   return;
 }
 
-void writers_init(WRS *wr, FLDS *f, PAR *p)
+vector<BBHP *>  writers_init(WRS *wr, FLDS *f, PAR *p)
 {
   VD zeros(p->wr_shape, 0);
   VD unused(1, 0);
-  bbhp_init(&(wr->p_Al), p, "Al", &(f->Al), ((p->write_abp) ? zeros : unused));
-  bbhp_init(&(wr->p_Be), p, "Be", &(f->Be), ((p->write_abp) ? zeros : unused));
-  bbhp_init(&(wr->p_Ps), p, "Ps", &(f->Ps), ((p->write_abp) ? zeros : unused));
-  bbhp_init(&(wr->p_Xi), p, "Xi", &(f->Xi), ((p->write_xp) ? zeros : unused));
-  bbhp_init(&(wr->p_Pi), p, "Pi", &(f->Pi), ((p->write_xp) ? zeros : unused));
-  if (p->write_res) {
-     bbhp_init(&(wr->p_resAl), p, "ResAl", &(f->resAl), ((p->write_abp) ? zeros : unused));
-     bbhp_init(&(wr->p_resBe), p, "ResBe", &(f->resBe), ((p->write_abp) ? zeros : unused));
-     bbhp_init(&(wr->p_resPs), p, "ResPs", &(f->resPs), ((p->write_abp) ? zeros : unused));
-     bbhp_init(&(wr->p_resXi), p, "ResXi", &(f->resXi), ((p->write_xp) ? zeros : unused));
-     bbhp_init(&(wr->p_resPi), p, "ResPi", &(f->resPi), ((p->write_xp) ? zeros : unused));
+  vector<BBHP *> out_vec;
+  if (p->write_abp) {
+    bbhp_init(&(wr->p_Al), p, "Al", &(f->Al), zeros);
+    bbhp_init(&(wr->p_Be), p, "Be", &(f->Be), zeros);
+    bbhp_init(&(wr->p_Ps), p, "Ps", &(f->Ps), zeros);
+    out_vec.push_back(&(wr->p_Al));
+    out_vec.push_back(&(wr->p_Be));
+    out_vec.push_back(&(wr->p_Ps));
+    if (p->write_res) {
+      bbhp_init(&(wr->p_resAl), p, "ResAl", &(f->resAl), zeros);
+      bbhp_init(&(wr->p_resBe), p, "ResBe", &(f->resBe), zeros);
+      bbhp_init(&(wr->p_resPs), p, "ResPs", &(f->resPs), zeros);
+      out_vec.push_back(&(wr->p_resAl));
+      out_vec.push_back(&(wr->p_resBe));
+      out_vec.push_back(&(wr->p_resPs));
+    }
+    else {
+      bbhp_init(&(wr->p_resAl), p, "ResAl", NULL, unused);
+      bbhp_init(&(wr->p_resBe), p, "ResBe", NULL, unused);
+      bbhp_init(&(wr->p_resPs), p, "ResPs", NULL, unused);
+    }
   }
   else {
-    bbhp_init(&(wr->p_resAl), p, "ResAl", &(f->resAl), unused);
-    bbhp_init(&(wr->p_resBe), p, "ResBe", &(f->resBe), unused);
-    bbhp_init(&(wr->p_resPs), p, "ResPs", &(f->resPs), unused);
-    bbhp_init(&(wr->p_resXi), p, "ResXi", &(f->resXi), unused);
-    bbhp_init(&(wr->p_resPi), p, "ResPi", &(f->resPi), unused);
+    bbhp_init(&(wr->p_Al), p, "Al", NULL, unused);
+    bbhp_init(&(wr->p_Be), p, "Be", NULL, unused);
+    bbhp_init(&(wr->p_Ps), p, "Ps", NULL, unused);
+    bbhp_init(&(wr->p_resAl), p, "ResAl", NULL, unused);
+    bbhp_init(&(wr->p_resBe), p, "ResBe", NULL, unused);
+    bbhp_init(&(wr->p_resPs), p, "ResPs", NULL, unused);
   }
-  bbhp_init(&(wr->p_iresAl), p, "iresAl", &(f->iresAl), ((p->write_ires_abp) ? zeros : unused));
-  bbhp_init(&(wr->p_iresBe), p, "iresBe", &(f->iresBe), ((p->write_ires_abp) ? zeros : unused));
-  bbhp_init(&(wr->p_iresPs), p, "iresPs", &(f->iresPs), ((p->write_ires_abp) ? zeros : unused));
-  bbhp_init(&(wr->p_iresXi), p, "iresXi", &(f->iresXi), ((p->write_ires_xp) ? zeros : unused));
-  bbhp_init(&(wr->p_iresPi), p, "iresPi", &(f->iresPi), ((p->write_ires_xp) ? zeros : unused));
+
+  if (p->write_xp) {
+    bbhp_init(&(wr->p_Xi), p, "Xi", &(f->Xi), zeros);
+    bbhp_init(&(wr->p_Pi), p, "Pi", &(f->Pi), zeros);
+    if (p->write_res) {
+      bbhp_init(&(wr->p_resXi), p, "ResXi", &(f->resXi), zeros);
+      bbhp_init(&(wr->p_resPi), p, "ResPi", &(f->resPi), zeros);
+    }
+    else {
+      bbhp_init(&(wr->p_resXi), p, "ResXi", NULL, unused);
+      bbhp_init(&(wr->p_resPi), p, "ResPi", NULL, unused);
+    }
+  }
+  else {
+    bbhp_init(&(wr->p_Xi), p, "Xi", NULL, unused);
+    bbhp_init(&(wr->p_Pi), p, "Pi", NULL, unused);
+    bbhp_init(&(wr->p_resXi), p, "ResXi", NULL, unused);
+    bbhp_init(&(wr->p_resPi), p, "ResPi", NULL, unused);
+  }
+  
+  bbhp_init(&(wr->p_iresAl), p, "iresAl", NULL, ((p->write_ires_abp) ? zeros : unused));
+  bbhp_init(&(wr->p_iresBe), p, "iresBe", NULL, ((p->write_ires_abp) ? zeros : unused));
+  bbhp_init(&(wr->p_iresPs), p, "iresPs", NULL, ((p->write_ires_abp) ? zeros : unused));
+  bbhp_init(&(wr->p_iresXi), p, "iresXi", NULL, ((p->write_ires_xp) ? zeros : unused));
+  bbhp_init(&(wr->p_iresPi), p, "iresPi", NULL, ((p->write_ires_xp) ? zeros : unused));
 
   bbhp_init(&(wr->p_maspect), p, "maspect", NULL, ((write_maspect) ? zeros : unused));
   bbhp_init(&(wr->p_outnull), p, "outnull", NULL, ((write_outnull) ? zeros : unused));
