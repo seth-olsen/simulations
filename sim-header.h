@@ -1,6 +1,6 @@
 #ifndef SIMULATION_HEADER_H
 #define SIMULATION_HEADER_H
-
+/*
 #ifndef DRVAL
 // doubles in MAPID r
 #define NORM_FACTOR 32504
@@ -58,7 +58,7 @@
 #define LP_LDB 32550
 #define MAX_ITN 32551
 #endif
-
+*/
 // libraries
 #include <iostream>
 #include <algorithm> // for max_element()
@@ -89,10 +89,12 @@ typedef void (*WR_FN)(const VD&, const VD&, const VD&, const VD&, const VD&,
 		      MAPID&, int, int);
 typedef void (*WR_RES_FN)(const VD&, VD&, VD&, VD&, VD&, VD&, int, int);
 
+// struct typedefs
+/*
 typedef struct bbhutil_params BBHP;
 typedef struct sim_fields FLDS;
 typedef struct sim_writers WRS;
 typedef struct sim_params PAR;
-
+*/
 
 #endif

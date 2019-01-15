@@ -53,30 +53,30 @@ inline dbl dlog_b(const VD& u, int ind)
 
 // DERIVATIVES
 
-inline dbl ddr_c(const VD& u, MAPID& r, int ind)
-{ return r[IN2DR]*(u[ind+1] - u[ind-1]); }
+inline dbl ddr_c(const VD& u, PAR *p, int ind)
+{ return (p->in2dr)*(u[ind+1] - u[ind-1]); }
 
-inline dbl ddr_f(const VD& u, MAPID& r, int ind)
-{ return r[IN2DR]*(-3*u[ind] + 4*u[ind+1] - u[ind+2]); }
+inline dbl ddr_f(const VD& u, PAR *p, int ind)
+{ return (p->in2dr)*(-3*u[ind] + 4*u[ind+1] - u[ind+2]); }
 
-inline dbl ddr_b(const VD& u, MAPID& r, int ind)
-{ return r[IN2DR]*(3*u[ind] - 4*u[ind-1] + u[ind-2]); }
+inline dbl ddr_b(const VD& u, PAR *p, int ind)
+{ return (p->in2dr)*(3*u[ind] - 4*u[ind-1] + u[ind-2]); }
 
-inline dbl ddr2_c(const VD& u, MAPID& r, int ind)
-{ return r[INDRSQ]*(u[ind-1] - 2*u[ind] + u[ind+1]); }
+inline dbl ddr2_c(const VD& u, PAR *p, int ind)
+{ return (p->indrsq)*(u[ind-1] - 2*u[ind] + u[ind+1]); }
 
-inline dbl ddr2_f(const VD& u, MAPID& r, int ind)
-{ return r[INDRSQ]*(2*u[ind] - 5*u[ind+1] + 4*u[ind+2] - u[ind+3]); }
+inline dbl ddr2_f(const VD& u, PAR *p, int ind)
+{ return (p->indrsq)*(2*u[ind] - 5*u[ind+1] + 4*u[ind+2] - u[ind+3]); }
 
-inline dbl ddr2_b(const VD& u, MAPID& r, int ind)
-{ return r[INDRSQ]*(2*u[ind] - 5*u[ind-1] + 4*u[ind-2] - u[ind-3]); }
+inline dbl ddr2_b(const VD& u, PAR *p, int ind)
+{ return (p->indrsq)*(2*u[ind] - 5*u[ind-1] + 4*u[ind-2] - u[ind-3]); }
 
-inline dbl ddrlog_c(const VD& u, MAPID& r, int ind)
-{ return r[IN2DR]*log(u[ind+1] / u[ind-1]); }
-inline dbl ddrlog_f(const VD& u, MAPID& r, int ind)
-{ return r[IN2DR]*(-3*log(u[ind]) + 4*log(u[ind+1]) - log(u[ind+2])); }
-inline dbl ddrlog_b(const VD& u, MAPID& r, int ind)
-{ return r[IN2DR]*(3*log(u[ind]) - 4*log(u[ind+1]) + log(u[ind+2])); }
+inline dbl ddrlog_c(const VD& u, PAR *p, int ind)
+{ return (p->in2dr)*log(u[ind+1] / u[ind-1]); }
+inline dbl ddrlog_f(const VD& u, PAR *p, int ind)
+{ return (p->in2dr)*(-3*log(u[ind]) + 4*log(u[ind+1]) - log(u[ind+2])); }
+inline dbl ddrlog_b(const VD& u, PAR *p, int ind)
+{ return (p->in2dr)*(3*log(u[ind]) - 4*log(u[ind+1]) + log(u[ind+2])); }
 
 // d(r*u)/dr * 2*dr
 inline dbl d_ru_c(const VD& u, int ind, dbl dr, dbl r)
@@ -176,27 +176,27 @@ inline void dirichlet0(VD& field)
 inline void neumann0(VD& field)
 { field[0] = (4*field[1] - field[2]) / 3.0; }
 
-inline void sommerfeld(const VD& oldfield, VD& field, MAPID& r,
+inline void sommerfeld(const VD& oldfield, VD& field, PAR *p,
 		       int ind)
 {
-  field[ind] = r[CSOMM_RHS]*( r[LAMVAL]*(field[ind-1] + oldfield[ind-1])
-			      - 0.25*r[LAMVAL]*(field[ind-2] + oldfield[ind-2])
-			      + r[CSOMM_OLD]*oldfield[ind] );
+  field[ind] = (p->csomm_rhs)*( (p->lam)*(field[ind-1] + oldfield[ind-1])
+			      - 0.25*(p->lam)*(field[ind-2] + oldfield[ind-2])
+			      + (p->csomm_old)*oldfield[ind] );
   return;
 }
 
 inline dbl dirichlet0res(const VD& field)
 { return field[0]; }
 
-inline dbl neumann0res(const VD& field, MAPID& r)
-{ return ddr_f(field, r, 0); }
+inline dbl neumann0res(const VD& field, PAR *p)
+{ return ddr_f(field, p, 0); }
 
 inline dbl sommerfeldres(const VD& oldfield, const VD& field,
-			 MAPID& r, int ind)
+			 PAR *p, int ind)
 {
   return 0.5*(field[ind] + oldfield[ind]) +
-    r[ind]*( r[INDT]*(field[ind] - oldfield[ind])
-	    + 0.5*(ddr_b(field,r,ind) + ddr_b(oldfield,r,ind)) );
+    (p->r[ind])*( (p->indt)*(field[ind] - oldfield[ind])
+	    + 0.5*(ddr_b(field,p,ind) + ddr_b(oldfield,p,ind)) );
 }
 
 
