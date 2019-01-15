@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include "sim-structs.h"
-#include "ekg-header.h"
+#include "sim-header.h"
 
 using namespace std;
 

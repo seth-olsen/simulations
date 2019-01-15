@@ -13,7 +13,7 @@
 #include <cstdlib> // for atoi() and atof()
 #include "bbhutil.h" // for output to .sdf
 #include "sim-structs.h"
-#include "ekg-header.h"
+#include "sim-header.h"
 #include "fda-fns.h"
 #include "ekg-fns.h"
 #include "ekg-proc.h"
@@ -28,10 +28,10 @@ inline void write_sdf(const BBHP *bp, dbl t)
   gft_out_bbox(bp->file, t, bp->shape, bp->rank, bp->coords, bp->data);
 }
 
-inline void prepare_write(const MAPID& fld, VD& wr_fld, PAR *p)
+inline void prepare_write(const VD& fld, VD& wr_fld, PAR *p)
 {
-  for (int ind[2] : p->inds) {
-    wr_fld[ind[0]] = fld[ind[1]];
+  for (auto ind : (p->inds)) {
+    wr_fld[ind.first] = fld[ind.second];
   }
 }
 
@@ -42,7 +42,7 @@ inline void write_bbhp(BBHP *bp, PAR *p)
 }
 
 inline void write_bbhp_vec(vector<BBHP *>& bp_vec, PAR *p) {
-  for (BBHP *bp : bp_vec) { write_bbhp(bp, p, p->t); }
+  for (BBHP *bp : bp_vec) { write_bbhp(bp, p); }
 }
 
 VD make_vector(int len, dbl val) {
@@ -82,20 +82,20 @@ void write_diagnostics(WRS *wr, FLDS *f, PAR *p)
   // write ires
   // write ricci
   if (p->write_ricci) {
-    get_ricci((wr->ricci).wr_field, f->Xi, f->Pi, f->Ps, p->inds);
-    write_sdf(&(wr->ricci), p->t);
+    get_ricci((wr->p_ricci).wr_field, f->Xi, f->Pi, f->Ps, p->inds);
+    write_sdf(&(wr->p_ricci), p->t);
   }
   // write outnull
   if (p->write_outnull) {
-    get_outnull((wr->outnull).wr_field, f->Al, f->Be, f->Ps,
-		p->r, p->lastwr, p->save_pt);
-    write_sdf(&(wr->outnull), p->t);
+    get_outnull((wr->p_outnull).wr_field, f->Al, f->Be, f->Ps,
+		p, p->lastwr, p->save_pt);
+    write_sdf(&(wr->p_outnull), p->t);
   }
   // write maspect
   if (p->write_maspect) {
-    get_maspect((wr->maspect).wr_field, f->Al, f->Be, f->Ps,
-		p->r, p->lastwr, p->save_pt);
-    write_sdf(&(wr->maspect), p->t);
+    get_maspect((wr->p_maspect).wr_field, f->Al, f->Be, f->Ps,
+		p, p->lastwr, p->save_pt);
+    write_sdf(&(wr->p_maspect), p->t);
   }
   return;
 }
@@ -132,7 +132,7 @@ void record_horizon(PAR *p, const VD& f_ps, int ind, int itn, int t_itn)
     + ";\trmax = " + to_string(p->rmax) + "\nlambda = " + to_string(p->lam) +
     "\ndt = " + to_string(p->dt) + "\ndissipation = " + to_string(p->dspn) +
     "\nell_up_weight = " + to_string(p->ell_up_weight) + "\nhyp_tol = " + to_string(p->tol) +
-    "\nell_tol = " + to_string(p->ell_tol) + "\nmaxit = " + to_string(maxit) + "\nic_r0 = " +
+    "\nell_tol = " + to_string(p->ell_tol) + "\nmaxit = " + to_string(p->maxit) + "\nic_r0 = " +
     to_string(p->ic_r0) + "\nic_Amp = " + to_string(p->ic_Amp) + "\nic_Dsq = " +
     to_string(p->ic_Dsq) + "\ndr = " + to_string(p->dr);
   param_str += "\noptions:\nhyperbolic psi evolution = " + bool_to_str(p->psi_hyp) +

@@ -403,12 +403,12 @@ void get_ell_res_abp_fast(VD& res_ell, const VD& f_xi, const VD& f_pi, const VD&
     
     
     res_ell[k] = ddr2_c(f_al,p,k) + 2*ddr_c(f_al,p,k)*(r[-k] + dps_ps)
-      - r[TWO_THIRDS]*p4db2_a - 8*M_PI*f_al[k]*sq(f_pi[k]);
+      - (p->two_thirds)*p4db2_a - 8*M_PI*f_al[k]*sq(f_pi[k]);
     
     res_ell[kbe + k] = ddr2_c(f_be,p,k) + drbe_r*(2*r[-k] + 6*dps_ps - ddr_c(f_al,p,k)*alin)
       + 12*M_PI*f_al[k]*f_xi[k]*f_pi[k]/sq(f_ps[k]);
     
-    res_ell[kps + k] = ddr2_c(f_ps,p,k) + f_ps[k]*( 2*r[-k]*dps_ps + r[TWELFTH]*p4db2_a*alin
+    res_ell[kps + k] = ddr2_c(f_ps,p,k) + f_ps[k]*( 2*r[-k]*dps_ps + (p->twelfth)*p4db2_a*alin
 						    + M_PI*(sq(f_xi[k]) + sq(f_pi[k])) );
   }
   res_ell[lastpt] = fdaR_resAl(f_al, p, lastpt);

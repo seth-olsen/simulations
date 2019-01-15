@@ -31,7 +31,7 @@ void bbhp_init(BBHP *bp, PAR *p, str fieldname, VD *p_field, const VD& zeros)
   bp->file = &(bp->filename[0]);
   bp->shape = &(p->wr_shape);
   bp->rank = 1;
-  bp->coords = &(p->coord_lims);  
+  bp->coords = &(p->coord_lims[0]);  
   bp->data = &(bp->wr_field[0]);
   bp->write_this = true;
   return;
@@ -61,9 +61,13 @@ vector<BBHP *> writers_init(WRS *wr, FLDS *f, PAR *p)
   if (p->write_xp) {
     bbhp_init(&(wr->p_Xi), p, "Xi", &(f->Xi), zeros);
     bbhp_init(&(wr->p_Pi), p, "Pi", &(f->Pi), zeros);
+    out_vec.push_back(&(wr->p_Xi));
+    out_vec.push_back(&(wr->p_Pi));
     if (p->write_res) {
       bbhp_init(&(wr->p_resXi), p, "ResXi", &(f->resXi), zeros);
       bbhp_init(&(wr->p_resPi), p, "ResPi", &(f->resPi), zeros);
+      out_vec.push_back(&(wr->p_resXi));
+      out_vec.push_back(&(wr->p_resPi));
     }
   }
 
@@ -76,20 +80,20 @@ vector<BBHP *> writers_init(WRS *wr, FLDS *f, PAR *p)
     bbhp_init(&(wr->p_iresXi), p, "iresXi", NULL, zeros);
     bbhp_init(&(wr->p_iresPi), p, "iresPi", NULL, zeros);
   }
-  if (write_maspect) { bbhp_init(&(wr->p_maspect), p, "maspect", NULL, zeros); }
-  if (write_outnull) { bbhp_init(&(wr->p_outnull), p, "outnull", NULL, zeros); }
-  if (write_ricci) { bbhp_init(&(wr->p_ricci), p, "ricci", NULL, zeros); }
+  if (p->write_maspect) { bbhp_init(&(wr->p_maspect), p, "maspect", NULL, zeros); }
+  if (p->write_outnull) { bbhp_init(&(wr->p_outnull), p, "outnull", NULL, zeros); }
+  if (p->write_ricci) { bbhp_init(&(wr->p_ricci), p, "ricci", NULL, zeros); }
   return out_vec;
 }
 
 int fields_init(FLDS *f, PAR *p)
 {
   VD zeros(p->npts, 0);
-  f->Al[k] = zeros;
-  f->Be[k] = zeros;
-  f->Ps[k] = zeros;
-  f->Xi[k] = zeros;
-  f->Pi[k] = zeros;
+  f->Al = zeros;
+  f->Be = zeros;
+  f->Ps = zeros;
+  f->Xi = zeros;
+  f->Pi = zeros;
   // PUT INITIAL CONDITIONS
   for (int k = 0; k < p->npts; ++k) {
     f->Al[k] = 1;
@@ -98,11 +102,11 @@ int fields_init(FLDS *f, PAR *p)
     f->Xi[k] = ic_xi(p->r[k], p->ic_Amp, p->ic_Dsq, p->ic_r0);
     if (!(p->zero_pi)) { f->Pi[k] = ic_pi(p->r[k], p->ic_Amp, p->ic_Dsq, p->ic_r0); }
   }
-  if (!static_metric) {
-    int itn = solve_t0_slow(f->Xi, f->Pi, f->Al, f->Be, f->Ps, p);
+  if (!(p->static_metric)) {
+    int itn = solve_t0_slow(f->Xi, f->Pi, f->Al, f->Be, f->Ps, p, p->lastpt);
     if (itn < 0) {
       if (itn > -(p->npts)) {
-	record_horizon(p, f->ps, -itn, 0, 0);
+	record_horizon(p, f->Ps, -itn, 0, 0);
       }
       else if (itn == -(p->npts)) {
 	record_horizon(p, f->Ps, 0, 0, 0);
@@ -132,6 +136,7 @@ int fields_init(FLDS *f, PAR *p)
     f->olderAl = zeros;
     f->olderBe = zeros;
     f->olderPs = zeros;
+  }
   if (p->write_ires_xp) {
     f->olderXi = zeros;
     f->olderPi = zeros;
@@ -140,8 +145,8 @@ int fields_init(FLDS *f, PAR *p)
   VD res_zeros(p->lp_ldb, 0);
   VD jac_zeros(p->lp_ldab * p->lp_n, 0);
   // GET THESE ************************************
-  p->res_ell = res_zeros;
-  p->jac_zero = jac_zeros;
+  f->res_ell = res_zeros;
+  f->jac = jac_zeros;
   return 0;
 }
 
@@ -168,22 +173,22 @@ int params_init(PAR *p, int argc, char **argv)
   
   // *****************************************CHECKS**********************
   // check that grid size (lastpt = npts-1) is divisible by save_pt 
-  if (lastpt % save_pt != 0) {
-    cout << "ERROR: save_pt = " << save_pt << " entered for grid size " << lastpt << endl;
-    save_pt -= lastpt % save_pt;
-    cout << "--> corrected: save_pt = " << save_pt << endl;
+  if (p->lastpt % p->save_pt != 0) {
+    cout << "ERROR: save_pt = " << p->save_pt << " entered for grid size " << p->lastpt << endl;
+    p->save_pt -= p->lastpt % p->save_pt;
+    cout << "--> corrected: save_pt = " << p->save_pt << endl;
   }
   // check that p->norm_type is valid
   if (p->norm_type < 0 || p->norm_type > 2) {
     cout << "ERROR: norm_type=" << p->save_pt << " not valid -> using inf-norm" << endl;
     p->norm_type = 0;
   }
-  if (horizon_search) { cout << "\nsearching for horizon..." << endl; }
+  if (p->horizon_search) { cout << "\nsearching for horizon..." << endl; }
   //************************************************************************
   //********************SETTING PARAMS FROM OLD PROGRAM*********************
   if (p->psi_hyp) {
-    n_ell = 2;
-    n_hyp = 3;
+    p->n_ell = 2;
+    p->n_hyp = 3;
   }
   // bbhutil parameters for writing data to sdf
   p->lastwr = p->lastpt / p->save_pt;
@@ -209,10 +214,9 @@ int params_init(PAR *p, int argc, char **argv)
   }
   p->t = 0;
   for (int k = 0; k < p->wr_shape; ++k) {
-    int ind[2] = {k, (p->save_pt)*k};
-    (p->inds).push_back(ind);
+    (p->inds).push_back({k, (p->save_pt)*k});
   }
-  if (p->inds[p->lastwr][1] != p->lastpt) { cout << "\n***INDEX INIT ERROR***\n" << endl; }
+  if ((p->inds[p->lastwr]).second != p->lastpt) { cout << "\n***INDEX INIT ERROR***\n" << endl; }
   
   // lapack object declaration
   p->lp_n = p->n_ell * p->npts;
@@ -240,7 +244,7 @@ int params_init(PAR *p, int argc, char **argv)
   }
   param_data += "\n";
   for (pair<str, bool *> param : p_bool) {
-    param_data += param.first + "\t\t=   " + bool_to_string(*(param.second)) + "\n";
+    param_data += param.first + "\t\t=   " + bool_to_str(*(param.second)) + "\n";
   }
   ofstream specs;
   str specs_name = p->outfile + ".txt";

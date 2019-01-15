@@ -80,22 +80,22 @@ inline dbl fda_resPs(const VD& f_xi, const VD& f_pi, const VD& f_al, const VD& f
 		     PAR *p, int k)
 {
   return ddr2_c(f_ps,p,k) + M_PI*f_ps[k]*(sq(f_xi[k]) + sq(f_pi[k])) + 2*(p->r[-k])*ddr_c(f_ps,p,k)
-    + r[TWELFTH]*pw5(f_ps[k])*sq(ddr_c(f_be,p,k) - (p->r[-k])*f_be[k]) / sq(f_al[k]);
+    + (p->twelfth)*pw5(f_ps[k])*sq(ddr_c(f_be,p,k) - (p->r[-k])*f_be[k]) / sq(f_al[k]);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 inline dbl fda_resBe(const VD& f_xi, const VD& f_pi, const VD& f_al, const VD& f_be, const VD& f_ps,
 		     PAR *p, int k)
 {
-  return ddr2_c(f_be,p,k) + r[TWELVE_PI]*f_al[k]*f_xi[k]*f_pi[k] / sq(f_ps[k])
+  return ddr2_c(f_be,p,k) + (p->twelve_pi)*f_al[k]*f_xi[k]*f_pi[k] / sq(f_ps[k])
     + (ddr_c(f_be,p,k) - (p->r[-k])*f_be[k])*(2*(p->r[-k]) + 6*(ddr_c(f_ps,p,k)/f_ps[k]) - (ddr_c(f_al,p,k)/f_al[k]));
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 inline dbl fda_resAl(const VD& f_xi, const VD& f_pi, const VD& f_al, const VD& f_be, const VD& f_ps,
 		     PAR *p, int k)
 {
-  return ddr2_c(f_al,p,k) - r[EIGHT_PI]*f_al[k]*sq(f_pi[k])
+  return ddr2_c(f_al,p,k) - (p->eight_pi)*f_al[k]*sq(f_pi[k])
     + 2*ddr_c(f_al,p,k)*((p->r[-k]) + (ddr_c(f_ps,p,k)/f_ps[k]))
-    - r[TWO_THIRDS]*pw4(f_ps[k])*sq(ddr_c(f_be,p,k) - (p->r[-k])*f_be[k]) / f_al[k];
+    - (p->two_thirds)*pw4(f_ps[k])*sq(ddr_c(f_be,p,k) - (p->r[-k])*f_be[k]) / f_al[k];
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 inline dbl fdaR_resPs(const VD& f_ps, PAR *p, int k)
@@ -266,8 +266,8 @@ inline dbl sRicci(const VD& f_xi, const VD& f_pi, const VD& f_ps, int k)
 {
   return (sq(f_xi[k]) - sq(f_pi[k])) / pw4(f_ps[k]);
 }
-void get_ricci(VD& ricci, const VD& f_xi, const VD& f_pi, const VD& f_ps, const vector<int[2]>& indices) {
-  for (int k[2] : indices) { ricci[k[0]] = sRicci(f_xi, f_pi, f_ps, k[1]); }
+void get_ricci(VD& ricci, const VD& f_xi, const VD& f_pi, const VD& f_ps, const vector< pair<int,int> >& indices) {
+  for (auto k : indices) { ricci[k.first] = sRicci(f_xi, f_pi, f_ps, k.second); }
 }
 
 #endif

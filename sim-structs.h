@@ -11,7 +11,7 @@
 struct bbhutil_params {
   str filename = "file";
   VD *full_field = NULL;
-  VD wr_field(1, 0);
+  VD wr_field;
   char *file = NULL;
   int *shape = NULL;
   int rank = 1;
@@ -22,34 +22,34 @@ struct bbhutil_params {
 typedef struct bbhutil_params BBHP;
 
 struct sim_fields {
-  VD Al(1, 0);
-  VD oldAl(1, 0);
-  VD cnAl(1, 0);
-  VD resAl(1, 0);
-  VD olderAl(1, 0);
-  VD Be(1, 0);
-  VD oldBe(1, 0);
-  VD cnBe(1, 0);
-  VD resBe(1, 0);
-  VD olderBe(1, 0); 
-  VD Ps(1, 0);
-  VD oldPs(1, 0);
-  VD cnPs(1, 0);
-  VD resPs(1, 0);
-  VD olderPs(1, 0);
-  VD Xi(1, 0);
-  VD oldXi(1, 0);
-  VD cnXi(1, 0);
-  VD resXi(1, 0);
-  VD olderXi(1, 0);
-  VD Pi(1, 0);
-  VD oldPi(1, 0);
-  VD cnPi(1, 0);
-  VD resPi(1, 0);
-  VD olderPi(1, 0);
+  VD Al;
+  VD oldAl;
+  VD cnAl;
+  VD resAl;
+  VD olderAl;
+  VD Be;
+  VD oldBe;
+  VD cnBe;
+  VD resBe;
+  VD olderBe; 
+  VD Ps;
+  VD oldPs;
+  VD cnPs;
+  VD resPs;
+  VD olderPs;
+  VD Xi;
+  VD oldXi;
+  VD cnXi;
+  VD resXi;
+  VD olderXi;
+  VD Pi;
+  VD oldPi;
+  VD cnPi;
+  VD resPi;
+  VD olderPi;
   //VD res_hyp(n_hyp*npts, 0);
-  VD res_ell(1, 0);
-  VD jac_zero(1, 0);
+  VD res_ell;
+  VD jac;
 } ;
 typedef struct sim_fields FLDS;
 
@@ -118,13 +118,13 @@ struct sim_params {
   bool horizon_search = true; // search for apparent horizon after each step?
 
   int n_ell = 3;
-  int n_nyp = 2;
+  int n_hyp = 2;
 
   int lastwr = lastpt/save_pt;
   int wr_shape = lastwr + 1;
   dbl wr_dr = (rmax - rmin) / ((dbl) lastwr);
-  dbl coor_lims[2] = {rmin, rmax};
-  vector<int[2]> inds;
+  dbl coord_lims[2] = {rmin, rmax};
+  vector< pair<int,int> > inds;
   int check_diagnostics = save_step * check_step;
   
   MAPID r {{0, rmin}};
@@ -160,6 +160,7 @@ struct sim_params {
   dbl indr = 1 / dr;
   dbl in2dr = 0.5 / dr;
   dbl indrsq = indr * indr;
+  dbl neg2indrsq = -2 * indrsq;
   dbl indt = 1 / dt;
   dbl inrmax = 1 / rmax;
   // SPECIFIC TERMS

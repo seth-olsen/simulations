@@ -28,13 +28,13 @@ int main(int argc, char **argv)
   WRS wr;
   int err_code = params_init(&p, argc, argv);
   if (err_code != 0) {
-    cout << "\nPARAM INIT error code = " << error_code << endl;
-    return error_code;
+    cout << "\nPARAM INIT error code = " << err_code << endl;
+    return err_code;
   }
   err_code = fields_init(&f, &p);
   if (err_code != 0) {
-    cout << "\nFIELD INIT error code = " << error_code << endl;
-    return error_code;
+    cout << "\nFIELD INIT error code = " << err_code << endl;
+    return err_code;
   }
   vector<BBHP *> writer_vec = writers_init(&wr, &f, &p);
   gft_set_multi();
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
   for (int i = 0; i < p.nsteps; ++i) {
     if (i % p.save_step == 0) {
       write_bbhp_vec(writer_vec, &p);
-      if (i % p->check_diagnostics == 0) {
+      if (i % p.check_diagnostics == 0) {
 	write_diagnostics(&wr, &f, &p);
       }
     }
@@ -50,14 +50,14 @@ int main(int argc, char **argv)
     fields_step(&f, &p);
   }
   // WRITE LAST STEP
-  if (i % p.save_step == 0) {
+  if (p.nsteps % p.save_step == 0) {
     write_bbhp_vec(writer_vec, &p);
-    if (i % p->check_diagnostics == 0) {
+    if (p.nsteps % p.check_diagnostics == 0) {
       write_diagnostics(&wr, &f, &p);
     }
   }
   gft_close_all();
-  return 0;
+  return err_code;
 }
     
   
