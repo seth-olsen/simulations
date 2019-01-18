@@ -77,27 +77,12 @@ inline void apply_up_ab_cn(const VD& deltas, VD& f_al, VD& f_be, PAR *p, int npt
 inline void apply_up_abp_join(const VD& deltas, VD& f_al, VD& f_be, VD& f_ps, PAR *p, int npts);
 inline void apply_up_abp_join_cn(const VD& deltas, const VD& old_al, const VD& old_be, const VD& old_ps,
 				 VD& f_al, VD& f_be, VD& f_ps, VD& cn_al, VD& cn_be, VD& cn_ps, PAR *p, int npts);
-int search_for_horizon(const VD& f_al, const VD& f_be, const VD& f_ps, PAR *p, MAPID& r, int lastpt, int i, double t)
+int search_for_horizon(const VD& f_al, const VD& f_be, const VD& f_ps, PAR *p)
 {
-  string horizon_response = "awesome";
-  if (outgoing_null_b(f_al, f_be, f_ps, p, lastpt) <= 0) {
-    cout << i << " at t = " << t << "\nAPPARENT HORIZON FOUND at r = " << (p->rmax) << "\nk = " << lastpt;
-    cout << "\nr_areal = " << (p->rmax)*sq(f_ps[lastpt]) << endl;
-    return 1;
-  }
-  int k = lastpt;
-  while (--k > 0) {
-    if (outgoing_null(f_al, f_be, f_ps, p, k) <= 0) {
-      cout << i << " at t = " << t << "\nAPPARENT HORIZON FOUND at r = " << r[k] << "\nk = " << k;
-      cout << "\nr_areal = " << r[k]*sq(f_ps[k]) << endl;
-      return 1;
-    }
-  }
-  if (outgoing_null_f(f_al, f_be, f_ps, p, 0) <= 0) {
-    cout << i << " at t = " << t << "\nAPPARENT HORIZON FOUND at r = " << (p->rmin) << "\nk = " << 0;
-    cout << "\nr_areal = " << (p->rmin)*sq(f_ps[0]) << endl;
-    return 1;
-  }
+  if (outgoing_null_b(f_al, f_be, f_ps, p, p->lastpt) <= 0) { return p->lastpt; }
+  int k = p->lastpt;
+  while (--k > 0) { if (outgoing_null(f_al, f_be, f_ps, p, k) <= 0) { return k; } }
+  if (outgoing_null_f(f_al, f_be, f_ps, p, 0) <= 0) { return p->npts; }
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -370,7 +355,7 @@ dbl get_hyp_res_fast(VD& res_hyp, const VD& old_xi, const VD& old_pi, const VD& 
 void get_ell_res_abpclean_join(VD& res_ell, const VD& f_xi, const VD& f_pi, const VD& f_al, const VD& f_be,
 			       const VD& f_ps, PAR *p, MAPID& r, int lastpt)
 {
-  int kbe = lastpt + 1;
+  int kbe = p->npts;
   int kps = 2*kbe;
   res_ell[0] = neumann0res(f_al, p);
   res_ell[kbe] = dirichlet0res(f_be);

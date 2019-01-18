@@ -48,6 +48,7 @@ struct sim_fields {
   VD resPi;
   VD olderPi;
   //VD res_hyp(n_hyp*npts, 0);
+  VD res_hyp;
   VD res_ell;
   VD jac;
 } ;
@@ -129,6 +130,7 @@ struct sim_params {
   
   MAPID r {{0, rmin}};
   dbl t = 0;
+  int exit_itn = 0;
 
   // DERIVED PARAMS
   int npts = lastpt + 1;

@@ -26,8 +26,7 @@ void bbhp_init(BBHP *bp, PAR *p, str fieldname, VD *p_field, const VD& zeros)
 {
   bp->full_field = p_field;
   bp->wr_field = zeros;
-  str resn_str = "-" + to_string(p->resn_factor) + "-";
-  bp->filename = fieldname + resn_str + p->outfile + ".sdf";
+  bp->filename = fieldname + "-" + p->outfile + ".sdf";
   bp->file = &(bp->filename[0]);
   bp->shape = &(p->wr_shape);
   bp->rank = 1;
@@ -57,7 +56,6 @@ vector<BBHP *> writers_init(WRS *wr, FLDS *f, PAR *p)
       out_vec.push_back(&(wr->p_resPs));
     }
   }
-
   if (p->write_xp) {
     bbhp_init(&(wr->p_Xi), p, "Xi", &(f->Xi), zeros);
     bbhp_init(&(wr->p_Pi), p, "Pi", &(f->Pi), zeros);
@@ -70,7 +68,6 @@ vector<BBHP *> writers_init(WRS *wr, FLDS *f, PAR *p)
       out_vec.push_back(&(wr->p_resPi));
     }
   }
-
   if (p->write_ires_abp) {
     bbhp_init(&(wr->p_iresAl), p, "iresAl", NULL, zeros);
     bbhp_init(&(wr->p_iresBe), p, "iresBe", NULL, zeros);
@@ -95,13 +92,18 @@ int fields_init(FLDS *f, PAR *p)
   f->Xi = zeros;
   f->Pi = zeros;
   // PUT INITIAL CONDITIONS
-  for (int k = 0; k < p->npts; ++k) {
+  f->Al[0] = 1;
+  f->Be[0] = 0;
+  f->Ps[0] = 1;
+  for (int k = 1; k < p->npts; ++k) {
     f->Al[k] = 1;
     f->Be[k] = 0;
     f->Ps[k] = 1;
     f->Xi[k] = ic_xi(p->r[k], p->ic_Amp, p->ic_Dsq, p->ic_r0);
     if (!(p->zero_pi)) { f->Pi[k] = ic_pi(p->r[k], p->ic_Amp, p->ic_Dsq, p->ic_r0); }
   }
+  dirichlet0(f->Xi);
+  neumann0(f->Pi);
   if (!(p->static_metric)) {
     int itn = solve_t0_slow(f->Xi, f->Pi, f->Al, f->Be, f->Ps, p, p->lastpt);
     if (itn < 0) {
@@ -142,10 +144,12 @@ int fields_init(FLDS *f, PAR *p)
     f->olderPi = zeros;
   }
 
-  VD res_zeros(p->lp_ldb, 0);
+  VD hyp_res_zeros(p->n_hyp * p->npts, 0);
+  VD ell_res_zeros(p->lp_ldb, 0);
   VD jac_zeros(p->lp_ldab * p->lp_n, 0);
   // GET THESE ************************************
-  f->res_ell = res_zeros;
+  f->res_hyp = hyp_res_zeros;
+  f->res_ell = ell_res_zeros;
   f->jac = jac_zeros;
   return 0;
 }
@@ -207,16 +211,18 @@ int params_init(PAR *p, int argc, char **argv)
   p->dr = (p->rmax - p->rmin) / ((dbl) p->lastpt);
   p->dt = p->lam * p->dr;
   p->check_diagnostics = p->save_step * p->check_step;
-  
-  for (int k = 0; k < p->npts; ++k) {
-    p->r[k] = p->rmin + k * p->dr;
-    if (p->r[k] != 0) { p->r[-k] = 1 / p->r[k]; }
+  p->r[0] = p->rmin
+  for (int k = 1; k < p->npts; ++k) {
+    p->r[k] = (p->rmin) + k*(p->dr);
+    p->r[-k] = 1 / (p->r[k]); }
   }
   p->t = 0;
   for (int k = 0; k < p->wr_shape; ++k) {
     (p->inds).push_back({k, (p->save_pt)*k});
   }
-  if ((p->inds[p->lastwr]).second != p->lastpt) { cout << "\n***INDEX INIT ERROR***\n" << endl; }
+  if ((p->inds[p->lastwr]).second != p->lastpt || p->r[p->lastpt] != p->rmax) {
+    cout << "\n***INDEX INIT ERROR***\n" << endl;
+  }
   
   // lapack object declaration
   p->lp_n = p->n_ell * p->npts;

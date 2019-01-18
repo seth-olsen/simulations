@@ -22,6 +22,7 @@
 
 int main(int argc, char **argv)
 {
+  time_t start_time = time(NULL); // time for rough performance measure
   // INITITALIZATION
   PAR p;
   FLDS f;
@@ -47,7 +48,11 @@ int main(int argc, char **argv)
       }
     }
     // SOLVE FOR NEXT STEP
-    fields_step(&f, &p);
+    err_code = fields_step(&f, &p, i);
+    if (err_code) {
+      cout << "\nFIELD STEP error code = " << err_code << endl;
+      return err_code;
+    }
   }
   // WRITE LAST STEP
   if (p.nsteps % p.save_step == 0) {
@@ -57,7 +62,8 @@ int main(int argc, char **argv)
     }
   }
   gft_close_all();
+  cout << p.outfile + " written in "
+       << difftime(time(NULL),start_time) << " seconds" << endl;
   return err_code;
 }
-    
   

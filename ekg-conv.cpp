@@ -44,13 +44,13 @@ vector<str> get_unames(str pre, vector<str>& fnames) {
 int main(int argc, char **argv)
 {
   // coarse simulation parameters
-  str outfile = "check01";
+  str outfile = "ekg";
   str outname = "0";
-  str pre1 = "Ricci", pre2 = "0", pre3 = "0", pre4 = "0", pre5 = "0",
-    pre6 = "0", pre7 = "0", pre8 = "ricci", pre9 = "0", pre10 = "0";
+  str pre1 = "maspect", pre2 = "0", pre3 = "0", pre4 = "0", pre5 = "0",
+    pre6 = "0", pre7 = "0", pre8 = "0", pre9 = "0", pre10 = "0";
   int lastpt = 500; // grid size
   int save_pt = 1; // write only every (save_pt)th grid point
-  int nsteps = 2000; // time steps
+  int nsteps = 1000; // time steps
   int save_step = 4; // write only every (save_step)th time step
   dbl lam = 0.25; // dt/dr
   dbl r2m = 0;
@@ -59,10 +59,10 @@ int main(int argc, char **argv)
   dbl dspn = 0.5; // dissipation coefficient
   dbl tol = 0.000000001; // iterative method tolerance
   dbl ell_tol = 0.01*tol;
-  int maxit = 50; // max iterations for debugging
+  int maxit = 100; // max iterations for debugging
   dbl ic_Dsq = 25.0; // gaussian width
   dbl ic_r0 = 20.0; // gaussian center
-  dbl ic_Amp = 0.012; // gaussian amplitude
+  dbl ic_Amp = 0.004; // gaussian amplitude
   bool zero_pi = false; // zero initial time derivative?
   bool sommerfeld = true; // sommerfeld condition at outer bound?
   bool dspn_bound = false; // dissipate boundary points?
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
   bool same_times = true;
   bool same_grids = true;
   // resolution factors
-  int resn0 = 2;
+  int resn0 = 1;
   int resn1 = 2*resn0;
   int resn2 = 4*resn0; // 4h, 2h, and h
 

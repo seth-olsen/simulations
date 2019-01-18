@@ -125,7 +125,9 @@ void get_wr_f(const VD& f, VD& wr, int wr_shape, int save_pt)
 
 void record_horizon(PAR *p, const VD& f_ps, int ind, int itn, int t_itn)
 {
-  cout << "\nHORIZON FOUND\n" << endl;
+  cout << "Horizon Found at:\nr[" << ind << "] = " << p->r[ind] << "  (r_areal = "
+       << sq(f_ps[ind])*p->r[ind] << ")\nt[" << t_itn << "] = "
+       << p->t << "  (itn " << itn << ")\n" << endl;
   str param_str = "\noutfile name = " + p->outfile + "\nlaspt (save_pt) = " +
     to_string(p->lastpt) + " (" + to_string(p->save_pt) + ")\nnsteps (save_step) = " +
     to_string(p->nsteps) + " (" + to_string(p->save_step) + ")\nrmin = " + to_string(p->rmin)
@@ -148,6 +150,7 @@ void record_horizon(PAR *p, const VD& f_ps, int ind, int itn, int t_itn)
 	<< "\nic_Dsq = " << p->ic_Dsq << "\nic_r0 = " << p->ic_r0 << "\n\n\nFULL PARAMETER DATA:\n";
   specs << param_str;
   specs.close();
+  cout << param_str;
   return;
 }
 
